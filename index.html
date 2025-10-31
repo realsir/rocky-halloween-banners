@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rocky Halloween</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: url('f0n.png') no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+      color: #f7f6f3;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 30px;
+      font-weight: 700;
+      font-size: 2.8rem;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 12px #5b340b;
+    }
+    .floating-circles {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .circle {
+      width: 90px;
+      height: 90px;
+      background: #744eaa;
+      border: 6px solid #5b340b;
+      border-radius: 50%;
+      overflow: hidden;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(91,52,11,0.33);
+      cursor: pointer;
+      pointer-events: auto;
+      transition: box-shadow 0.25s;
+      z-index: 2;
+    }
+    .circle img {
+      width: 82px;
+      height: 82px;
+      object-fit: cover;
+      border-radius: 50%;
+      background: #ecdcc7;
+      pointer-events: none;
+    }
+    .circle:hover {
+      box-shadow: 0 16px 26px rgba(91,52,11,0.55);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 50;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(34,23,17,0.74);
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s;
+    }
+    .modal-content {
+      background: #fff;
+      color: #222;
+      border-radius: 20px;
+      box-shadow: 0 8px 36px #5b340b77;
+      padding: 32px 17px 19px 17px;
+      text-align: center;
+      max-width: 410px;
+      width: 94vw;
+      position: relative;
+      animation: slideUp 0.4s;
+    }
+    .modal-content img {
+      width: 100%;
+      border-radius: 14px;
+      margin-bottom: 19px;
+      max-height: 210px;
+      box-shadow: 0 4px 13px #cca36755;
+      object-fit: contain;
+      background: #ecdcc7;
+    }
+    .close-btn {
+      position: absolute;
+      top: 16px; right: 18px;
+      background: #744eaa;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: 0 2px 7px #5b340b55;
+      transition: background 0.18s;
+    }
+    .close-btn:hover {
+      background: #5b340b;
+    }
+    .download-btn {
+      display: inline-block;
+      padding: 11px 25px;
+      background: linear-gradient(90deg, #744eaa 60%, #5b340b 100%);
+      color: #fff;
+      font-size: 1.18rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 11px;
+      margin-top: 14px;
+      transition: background 0.18s;
+      box-shadow: 0 2px 7px #cca36766;
+    }
+    .download-btn:hover {
+      background: linear-gradient(90deg, #5b340b 40%, #744eaa 100%);
+      color: #ffe9ae;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(80px); } to { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<h1>ROCKY HALLOWEEN BANNERS!</h1>
+<div class="floating-circles" id="floatingCircles"></div>
+
+
+<div class="modal" id="modal">
+  <div class="modal-content" id="modalContent">
+    <button class="close-btn" onclick="closeModal()">&times;</button>
+    <img id="bannerImg" src="" alt="Banner">
+    <br>
+    <a id="downloadBtn" class="download-btn" href="" target="_blank">Download Banner</a>
+  </div>
+</div>
+
+<script>
+const N = 46;
+const RADIUS = 45; // px
+const floatingCircles = document.getElementById('floatingCircles');
+const banners = Array.from({length: N}, (_, i) => ({photo:`${i+1}.jpg`, banner:`banner-4-${i+1}.png`}));
+
+function randomInt(a, b) { return Math.floor(Math.random() * (b - a)) + a; }
+function randomFloat(a, b) { return Math.random() * (b - a) + a; }
+
+const circlesData = [];
+const width = () => window.innerWidth;
+const height = () => window.innerHeight;
+
+function areTouching(c1, c2) {
+  const dx = c1.x - c2.x, dy = c1.y - c2.y;
+  return Math.hypot(dx, dy) < RADIUS*2 + 5;
+}
+
+for (let idx = 0; idx < banners.length; idx++) {
+  let placed = false, maxTries = 200, tries = 0;
+  let x, y;
+  while (!placed && tries++ < maxTries) {
+    x = randomInt(RADIUS + 8, width() - RADIUS - 12);
+    y = randomInt(RADIUS + 36, height() - RADIUS - 12);
+    placed = !circlesData.some(cd => Math.hypot(cd.x-x, cd.y-y) < RADIUS*2 + 9);
+  }
+  if (!placed) x = randomInt(RADIUS + 8, width() - RADIUS - 12), y = randomInt(RADIUS + 36, height() - RADIUS - 12);
+  const vx = randomFloat(-0.8, 0.8);
+  const vy = randomFloat(-0.6, 0.6);
+  const obj = {
+    el: null,
+    x, y, vx, vy,
+    idx
+  };
+  const el = document.createElement('div');
+  el.className = 'circle';
+  el.style.left = `${x-RADIUS}px`;
+  el.style.top = `${y-RADIUS}px`;
+  el.innerHTML = `<img src="${banners[idx].photo}" alt="Photo ${idx+1}" loading="lazy">`;
+  el.addEventListener('click', () => openModal(banners[idx].banner));
+  floatingCircles.appendChild(el);
+  obj.el = el;
+  circlesData.push(obj);
+}
+
+// --- Коллизии и перемещение ---
+function updatePositions() {
+  const W = width(); const H = height();
+  for(let i=0;i<circlesData.length;i++) {
+    let c = circlesData[i];
+    c.x += c.vx;
+    c.y += c.vy;
+    // Столкновения с границами
+    if (c.x - RADIUS <= 0 && c.vx < 0) c.vx *= -1;
+    if (c.x + RADIUS >= W && c.vx > 0) c.vx *= -1;
+    if (c.y - RADIUS <= 0 && c.vy < 0) c.vy *= -1;
+    if (c.y + RADIUS >= H && c.vy > 0) c.vy *= -1;
+  }
+  // Столкновения кружков друг с другом
+  for(let i=0;i<circlesData.length;i++) for(let j=i+1;j<circlesData.length;j++) {
+    const a = circlesData[i], b = circlesData[j];
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const dist = Math.hypot(dx, dy);
+    if(dist > 0 && dist < RADIUS*2+2) {
+      // Нормализованный вектор между центрами
+      const nx = dx / dist, ny = dy / dist;
+      // Отражение скоростей относительно вектора столкновения (упругая коллизия с одинаковой массой)
+      const p = 2 * (a.vx*nx + a.vy*ny - b.vx*nx - b.vy*ny) / 2;
+      a.vx = a.vx - p * nx;
+      a.vy = a.vy - p * ny;
+      b.vx = b.vx + p * nx;
+      b.vy = b.vy + p * ny;
+      // Раздвинуть кружки, чтобы не слипались
+      const overlap = RADIUS*2+2 - dist;
+      a.x -= nx*overlap/2; b.x += nx*overlap/2;
+      a.y -= ny*overlap/2; b.y += ny*overlap/2;
+    }
+  }
+  // Применяем новые координаты
+  for(let i=0;i<circlesData.length;i++) {
+    const c = circlesData[i];
+    c.el.style.left = `${c.x-RADIUS}px`;
+    c.el.style.top  = `${c.y-RADIUS}px`;
+  }
+  requestAnimationFrame(updatePositions);
+}
+updatePositions();
+
+window.addEventListener('resize', ()=>{ /* переставлять кружки при сильном ресайзе не требуется */ });
+
+// --- Модальное окно ---
+function openModal(banner) {
+  document.getElementById('bannerImg').src = banner;
+  document.getElementById('downloadBtn').href = banner;
+  document.getElementById('modal').style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>
