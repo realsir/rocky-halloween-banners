@@ -138,7 +138,6 @@
 <h1>ROCKY HALLOWEEN BANNERS!</h1>
 <div class="floating-circles" id="floatingCircles"></div>
 
-
 <div class="modal" id="modal">
   <div class="modal-content" id="modalContent">
     <button class="close-btn" onclick="closeModal()">&times;</button>
@@ -149,8 +148,8 @@
 </div>
 
 <script>
-const N = 46;
-const RADIUS = 45; // px
+const N = 60;
+const RADIUS = 45; 
 const floatingCircles = document.getElementById('floatingCircles');
 const banners = Array.from({length: N}, (_, i) => ({photo:`${i+1}.jpg`, banner:`banner-4-${i+1}.png`}));
 
@@ -193,40 +192,39 @@ for (let idx = 0; idx < banners.length; idx++) {
   circlesData.push(obj);
 }
 
-// --- Коллизии и перемещение ---
 function updatePositions() {
   const W = width(); const H = height();
   for(let i=0;i<circlesData.length;i++) {
     let c = circlesData[i];
     c.x += c.vx;
     c.y += c.vy;
-    // Столкновения с границами
+
     if (c.x - RADIUS <= 0 && c.vx < 0) c.vx *= -1;
     if (c.x + RADIUS >= W && c.vx > 0) c.vx *= -1;
     if (c.y - RADIUS <= 0 && c.vy < 0) c.vy *= -1;
     if (c.y + RADIUS >= H && c.vy > 0) c.vy *= -1;
   }
-  // Столкновения кружков друг с другом
+
   for(let i=0;i<circlesData.length;i++) for(let j=i+1;j<circlesData.length;j++) {
     const a = circlesData[i], b = circlesData[j];
     const dx = b.x - a.x, dy = b.y - a.y;
     const dist = Math.hypot(dx, dy);
     if(dist > 0 && dist < RADIUS*2+2) {
-      // Нормализованный вектор между центрами
+
       const nx = dx / dist, ny = dy / dist;
-      // Отражение скоростей относительно вектора столкновения (упругая коллизия с одинаковой массой)
+
       const p = 2 * (a.vx*nx + a.vy*ny - b.vx*nx - b.vy*ny) / 2;
       a.vx = a.vx - p * nx;
       a.vy = a.vy - p * ny;
       b.vx = b.vx + p * nx;
       b.vy = b.vy + p * ny;
-      // Раздвинуть кружки, чтобы не слипались
+
       const overlap = RADIUS*2+2 - dist;
       a.x -= nx*overlap/2; b.x += nx*overlap/2;
       a.y -= ny*overlap/2; b.y += ny*overlap/2;
     }
   }
-  // Применяем новые координаты
+
   for(let i=0;i<circlesData.length;i++) {
     const c = circlesData[i];
     c.el.style.left = `${c.x-RADIUS}px`;
@@ -236,9 +234,8 @@ function updatePositions() {
 }
 updatePositions();
 
-window.addEventListener('resize', ()=>{ /* переставлять кружки при сильном ресайзе не требуется */ });
+window.addEventListener('resize', ()=>{ /* resize can be handled here if needed */ });
 
-// --- Модальное окно ---
 function openModal(banner) {
   document.getElementById('bannerImg').src = banner;
   document.getElementById('downloadBtn').href = banner;
@@ -253,3 +250,4 @@ document.addEventListener('keydown', e => {
 </script>
 </body>
 </html>
+
